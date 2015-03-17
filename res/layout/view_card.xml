@@ -1,0 +1,20 @@
+<com.jianbin.views.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_gravity="center"
+    android:layout_width="164dp"
+    android:layout_height="164dp" >
+
+    <TextView
+        android:layout_width="164dp"
+        android:layout_height="164dp"
+        android:background="@drawable/bg_card"
+        android:gravity="center"
+        android:text="CARD FRONT"
+        android:textSize="20sp" />
+
+    <ImageView
+        android:layout_width="164dp"
+        android:layout_height="164dp"
+        android:gravity="center"
+        android:textSize="20sp" />
+
+</com.jianbin.views.CardView>
