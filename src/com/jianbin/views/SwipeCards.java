@@ -20,16 +20,19 @@ public class SwipeCards extends FrameLayout {
 
 	private int mScreenWidth;
 	private int mHeight;
-	//第一张卡片的大小
+	// 第一张卡片的大小
 	private int mCardHeight;
 	private int mCardWidth;
-	
-	//逐层卡片间距
+
+	// 逐层卡片间距
 	private int mThin = 7;
-	//逐层递减的卡片倍率
+	// 逐层递减的卡片倍率
 	private float scaleSize = 0.09f;
 
 	private boolean isAnim = false;
+
+	private OnLeftSwipeListener mOnLeftSwipeListener;
+	private OnRightSwipeListener mOnRightSwipeListener;
 
 	public SwipeCards(Context context, AttributeSet attrs, int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
@@ -51,6 +54,14 @@ public class SwipeCards extends FrameLayout {
 
 	public SwipeCards(Context context) {
 		this(context, null);
+	}
+
+	public void setOnLeftSwipeListener(OnLeftSwipeListener listener) {
+		mOnLeftSwipeListener = listener;
+	}
+
+	public void setOnRightSwipeListener(OnRightSwipeListener listener) {
+		mOnRightSwipeListener = listener;
 	}
 
 	public void setAdapter(Adapter adapter) {
@@ -101,7 +112,7 @@ public class SwipeCards extends FrameLayout {
 			for (int i = 0; i < childCount; i++) {
 				View child = getChildAt(i);
 				float marginTop = (mHeight - mCardHeight)
-						- (childCount - i +0.5f) * mThin;
+						- (childCount - i + 0.5f) * mThin;
 				child.setTranslationY(marginTop);
 			}
 		}
@@ -147,6 +158,9 @@ public class SwipeCards extends FrameLayout {
 				&& rotateEnd == false;
 	}
 
+	private boolean mOnLeftSwipe = false;
+	private boolean mOnRightSwipe = false;
+
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		int action = event.getAction();
@@ -176,14 +190,19 @@ public class SwipeCards extends FrameLayout {
 						swapFrontBack();
 					}
 				}
-				if (translateable(mDistX) && mScaleX > 0.15f && mDistX > 0) {
+				if (translateable(mDistX) && mScaleX > 0.15f && mDistX > 0) {// 向右滑动
+					mOnLeftSwipe = false;
+					mOnRightSwipe = true;
 					mTopView.animate().translationX(mCardWidth + mScreenWidth)
 							.setListener(mRemoveAnimListener);
+
 				} else if (translateable(mDistX) && mScaleX > 0.15f
-						&& mDistX < 0) {
+						&& mDistX < 0) {// 向左滑动
+					mOnLeftSwipe = true;
+					mOnRightSwipe = false;
 					mTopView.animate().translationX(-mCardWidth - mScreenWidth)
 							.setListener(mRemoveAnimListener);
-				} else {// 向右回
+				} else {// 向中间回
 					mTopView.animate().translationX(0)
 							.setListener(mAnimListener);
 				}
@@ -213,7 +232,7 @@ public class SwipeCards extends FrameLayout {
 		int childCount = getChildCount();
 		for (int i = 0; i < childCount; i++) {
 			View child = getChildAt(i);
-			float marginTop = (mHeight - mCardHeight) - (childCount - i +0.5f)
+			float marginTop = (mHeight - mCardHeight) - (childCount - i + 0.5f)
 					* mThin;
 			child.animate().translationY(marginTop).setDuration(500)
 					.setListener(mAnimListener);
@@ -240,6 +259,14 @@ public class SwipeCards extends FrameLayout {
 			super.onAnimationEnd(animation);
 			mTopView = null;
 			removeViewAt(getChildCount() - 1);
+			//设置滑动删除结束监听
+			if (mOnLeftSwipe) {
+				if (null != mOnLeftSwipeListener)
+					mOnLeftSwipeListener.onLeftSwipe(SwipeCards.this);
+			} else if (mOnRightSwipe) {
+				if (null != mOnRightSwipeListener)
+					mOnRightSwipeListener.onRightSwipe(SwipeCards.this);
+			}
 			rotateEnd = false;
 			reLayout();
 			reMeasure();
@@ -258,5 +285,33 @@ public class SwipeCards extends FrameLayout {
 		public void onAnimationEnd(Animator animation) {
 			isAnim = false;
 		}
+	}
+
+	/**
+	 * 
+	 * 向左滑动删除视图结束时监听
+	 */
+	public interface OnLeftSwipeListener {
+		/**
+		 * 向左滑动删除视图结束监听
+		 * 
+		 * @param v
+		 *            该卡片视图
+		 */
+		public void onLeftSwipe(View v);
+	}
+
+	/**
+	 * 
+	 * 向右滑动删除视图结束时监听
+	 */
+	public interface OnRightSwipeListener {
+		/**
+		 * 向右滑动删除视图结束时监听
+		 * 
+		 * @param v
+		 *            该卡片视图
+		 */
+		public void onRightSwipe(View v);
 	}
 }
