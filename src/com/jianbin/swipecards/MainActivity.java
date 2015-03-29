@@ -4,11 +4,11 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
 import com.jianbin.views.SwipeCards;
 import com.jianbin.views.SwipeCards.OnLeftSwipeListener;
+import com.jianbin.views.SwipeCards.OnReversalListener;
 import com.jianbin.views.SwipeCards.OnRightSwipeListener;
 import com.jianbin.views.SwipeCardsAdapter;
 
@@ -23,7 +23,7 @@ public class MainActivity extends ActionBarActivity {
 		swipecards.setAdapter(new SwipeCardsAdapter(this));
 		swipecards.setOnLeftSwipeListener(new OnLeftSwipeListener() {
 			@Override
-			public void onLeftSwipe(View v) {
+			public void onLeftSwipe(SwipeCards v) {
 				Toast.makeText(MainActivity.this, "Left Swipe End",
 						Toast.LENGTH_SHORT).show();
 			}
@@ -31,8 +31,16 @@ public class MainActivity extends ActionBarActivity {
 		swipecards.setOnRightSwipeListener(new OnRightSwipeListener() {
 
 			@Override
-			public void onRightSwipe(View v) {
+			public void onRightSwipe(SwipeCards v) {
 				Toast.makeText(MainActivity.this, "Right Swipe End",
+						Toast.LENGTH_SHORT).show();
+			}
+		});
+
+		swipecards.setOnReversalListener(new OnReversalListener() {
+			@Override
+			public void onReversal(SwipeCards v) {
+				Toast.makeText(MainActivity.this, "Reversal End",
 						Toast.LENGTH_SHORT).show();
 			}
 		});

@@ -31,8 +31,10 @@ public class SwipeCards extends FrameLayout {
 
 	private boolean isAnim = false;
 
+	//监听器
 	private OnLeftSwipeListener mOnLeftSwipeListener;
 	private OnRightSwipeListener mOnRightSwipeListener;
+	private OnReversalListener mOnReversalListener;
 
 	public SwipeCards(Context context, AttributeSet attrs, int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
@@ -62,6 +64,10 @@ public class SwipeCards extends FrameLayout {
 
 	public void setOnRightSwipeListener(OnRightSwipeListener listener) {
 		mOnRightSwipeListener = listener;
+	}
+
+	public void setOnReversalListener(OnReversalListener listener) {
+		mOnReversalListener = listener;
 	}
 
 	public void setAdapter(Adapter adapter) {
@@ -225,6 +231,9 @@ public class SwipeCards extends FrameLayout {
 			((CardView) mTopView).getBackView().animate().alpha(1.0f);
 			((CardView) mTopView).getFrontView().animate().alpha(0.0f);
 		}
+		// 设置翻转时的监听
+		if (null != mOnReversalListener)
+			mOnReversalListener.onReversal(SwipeCards.this);
 		rotateEnd = true;
 	}
 
@@ -259,7 +268,7 @@ public class SwipeCards extends FrameLayout {
 			super.onAnimationEnd(animation);
 			mTopView = null;
 			removeViewAt(getChildCount() - 1);
-			//设置滑动删除结束监听
+			// 设置滑动删除结束监听
 			if (mOnLeftSwipe) {
 				if (null != mOnLeftSwipeListener)
 					mOnLeftSwipeListener.onLeftSwipe(SwipeCards.this);
@@ -288,7 +297,6 @@ public class SwipeCards extends FrameLayout {
 	}
 
 	/**
-	 * 
 	 * 向左滑动删除视图结束时监听
 	 */
 	public interface OnLeftSwipeListener {
@@ -298,11 +306,10 @@ public class SwipeCards extends FrameLayout {
 		 * @param v
 		 *            该卡片视图
 		 */
-		public void onLeftSwipe(View v);
+		public void onLeftSwipe(SwipeCards v);
 	}
 
 	/**
-	 * 
 	 * 向右滑动删除视图结束时监听
 	 */
 	public interface OnRightSwipeListener {
@@ -312,6 +319,13 @@ public class SwipeCards extends FrameLayout {
 		 * @param v
 		 *            该卡片视图
 		 */
-		public void onRightSwipe(View v);
+		public void onRightSwipe(SwipeCards v);
+	}
+
+	/**
+	 * 翻转时监听
+	 */
+	public interface OnReversalListener {
+		public void onReversal(SwipeCards v);
 	}
 }

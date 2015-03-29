@@ -16,7 +16,6 @@ import com.jianbin.swipecards.R;
 public class SwipeCardsAdapter extends BaseAdapter {
 
 	private LayoutInflater mInflater;
-	private Context mContext;
 
 	private List<SwipeData> mData;
 
@@ -42,7 +41,6 @@ public class SwipeCardsAdapter extends BaseAdapter {
 	}
 
 	public SwipeCardsAdapter(Context context) {
-		mContext = context;
 		mInflater = LayoutInflater.from(context);
 	}
 
@@ -65,8 +63,8 @@ public class SwipeCardsAdapter extends BaseAdapter {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		ImageView tvFront;
 		TextView tvBack;
-
-		convertView = mInflater.inflate(R.layout.view_card, parent);
+		if (null == convertView)
+			convertView = mInflater.inflate(R.layout.view_card, parent);
 		CardView child = (CardView) parent
 				.getChildAt(parent.getChildCount() - 1);
 
