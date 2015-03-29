@@ -1,17 +1,16 @@
 package com.jianbin.views;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
 
-@SuppressLint("NewApi")
+import com.nineoldandroids.view.ViewHelper;
+
 public class CardView extends FrameLayout {
 
 	private View mFrontView;
 	private View mBackView;
-
 
 	public CardView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
@@ -25,7 +24,6 @@ public class CardView extends FrameLayout {
 		this(context, null);
 	}
 
-
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		initView();
@@ -36,7 +34,7 @@ public class CardView extends FrameLayout {
 	protected void onLayout(boolean changed, int left, int top, int right,
 			int bottom) {
 		super.onLayout(changed, left, top, right, bottom);
-		mBackView.setRotationX(180.0f);
+		ViewHelper.setRotationX(mBackView, 180.0f);
 	}
 
 	public void initView() {
@@ -45,7 +43,7 @@ public class CardView extends FrameLayout {
 			mBackView = getChildAt(0);
 		}
 	}
-	
+
 	public View getFrontView() {
 		return mFrontView;
 	}

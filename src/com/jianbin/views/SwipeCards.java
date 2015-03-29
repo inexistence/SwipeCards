@@ -1,7 +1,5 @@
 package com.jianbin.views;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
@@ -13,7 +11,12 @@ import android.view.WindowManager;
 import android.widget.Adapter;
 import android.widget.FrameLayout;
 
-@SuppressLint({ "NewApi", "ClickableViewAccessibility" })
+import com.nineoldandroids.animation.Animator;
+import com.nineoldandroids.animation.AnimatorListenerAdapter;
+import com.nineoldandroids.view.ViewHelper;
+import com.nineoldandroids.view.ViewPropertyAnimator;
+
+@SuppressLint("ClickableViewAccessibility")
 public class SwipeCards extends FrameLayout {
 
 	private Adapter mAdapter;
@@ -31,7 +34,7 @@ public class SwipeCards extends FrameLayout {
 
 	private boolean isAnim = false;
 
-	//监听器
+	// 监听器
 	private OnLeftSwipeListener mOnLeftSwipeListener;
 	private OnRightSwipeListener mOnRightSwipeListener;
 	private OnReversalListener mOnReversalListener;
@@ -97,10 +100,10 @@ public class SwipeCards extends FrameLayout {
 					float scale = (1.0f + scaleSize) - scaleSize
 							* (childCount - i);
 					View child1 = getChildAt(i);
-					child1.setPivotX(mCardWidth / 2);
-					child1.setPivotY(0);
-					child1.setScaleX(scale);
-					child1.setScaleY(scale);
+					ViewHelper.setPivotX(child1, mCardWidth / 2);
+					ViewHelper.setPivotY(child1, 0);
+					ViewHelper.setScaleX(child1, scale);
+					ViewHelper.setScaleY(child1, scale);
 				}
 			}
 			first = false;
@@ -119,7 +122,7 @@ public class SwipeCards extends FrameLayout {
 				View child = getChildAt(i);
 				float marginTop = (mHeight - mCardHeight)
 						- (childCount - i + 0.5f) * mThin;
-				child.setTranslationY(marginTop);
+				ViewHelper.setTranslationY(child, marginTop);
 			}
 		}
 	}
@@ -129,8 +132,8 @@ public class SwipeCards extends FrameLayout {
 		if (childCount == 0)
 			return null;
 		View child = getChildAt(childCount - 1);
-		float curX = child.getX();
-		float curY = child.getY();
+		float curX = ViewHelper.getX(child);
+		float curY = ViewHelper.getY(child);
 		if (x >= curX && x <= curX + mCardWidth && y >= curY
 				&& y <= curY + mCardHeight) {
 			return child;
@@ -184,14 +187,14 @@ public class SwipeCards extends FrameLayout {
 				mScaleX = Math.abs(mDistX / mCardWidth);
 
 				if (translateable(mDistX)) {
-					mTopView.setTranslationX(mDistX);
+					ViewHelper.setTranslationX(mTopView, mDistX);
 				}
 			}
 			break;
 		case MotionEvent.ACTION_UP:
 			if (!isAnim && isMoving && null != mTopView) {
 				if (rotateable(mDistY)) {// 翻转
-					mTopView.setPivotY(mCardHeight / 2);
+					ViewHelper.setPivotY(mTopView, mCardHeight / 2);
 					if ((mDistY >= mCardHeight / 3) && !translateable(mDistX)) {
 						swapFrontBack();
 					}
@@ -199,17 +202,19 @@ public class SwipeCards extends FrameLayout {
 				if (translateable(mDistX) && mScaleX > 0.15f && mDistX > 0) {// 向右滑动
 					mOnLeftSwipe = false;
 					mOnRightSwipe = true;
-					mTopView.animate().translationX(mCardWidth + mScreenWidth)
+					ViewPropertyAnimator.animate(mTopView)
+							.translationX(mCardWidth + mScreenWidth)
 							.setListener(mRemoveAnimListener);
 
 				} else if (translateable(mDistX) && mScaleX > 0.15f
 						&& mDistX < 0) {// 向左滑动
 					mOnLeftSwipe = true;
 					mOnRightSwipe = false;
-					mTopView.animate().translationX(-mCardWidth - mScreenWidth)
+					ViewPropertyAnimator.animate(mTopView)
+							.translationX(-mCardWidth - mScreenWidth)
 							.setListener(mRemoveAnimListener);
 				} else {// 向中间回
-					mTopView.animate().translationX(0)
+					ViewPropertyAnimator.animate(mTopView).translationX(0)
 							.setListener(mAnimListener);
 				}
 				mTopView = null;
@@ -223,13 +228,15 @@ public class SwipeCards extends FrameLayout {
 	}
 
 	private void swapFrontBack() {
-		mTopView.setPivotX(mCardWidth / 2);
-		mTopView.setPivotY(mCardHeight / 2);
-		mTopView.animate().translationX(0).alpha(1.0f).rotationX(180f)
-				.setListener(mAnimListener);
+		ViewHelper.setPivotX(mTopView, mCardWidth / 2);
+		ViewHelper.setPivotY(mTopView, mCardHeight / 2);
+		ViewPropertyAnimator.animate(mTopView).translationX(0).alpha(1.0f)
+				.rotationX(180f).setListener(mAnimListener);
 		if (mTopView instanceof CardView) {
-			((CardView) mTopView).getBackView().animate().alpha(1.0f);
-			((CardView) mTopView).getFrontView().animate().alpha(0.0f);
+			ViewPropertyAnimator.animate(((CardView) mTopView).getBackView())
+					.alpha(1.0f);
+			ViewPropertyAnimator.animate(((CardView) mTopView).getFrontView())
+					.alpha(0.0f);
 		}
 		// 设置翻转时的监听
 		if (null != mOnReversalListener)
@@ -243,8 +250,8 @@ public class SwipeCards extends FrameLayout {
 			View child = getChildAt(i);
 			float marginTop = (mHeight - mCardHeight) - (childCount - i + 0.5f)
 					* mThin;
-			child.animate().translationY(marginTop).setDuration(500)
-					.setListener(mAnimListener);
+			ViewPropertyAnimator.animate(child).translationY(marginTop)
+					.setDuration(500).setListener(mAnimListener);
 		}
 	}
 
@@ -253,11 +260,11 @@ public class SwipeCards extends FrameLayout {
 		for (int i = 0; i < childCount; i++) {
 			float scale = (1.0f + scaleSize) - scaleSize * (childCount - i);
 			View child1 = getChildAt(i);
-			child1.setPivotX(mCardWidth / 2);
-			child1.setPivotY(0);
-			child1.animate().scaleX(scale).setDuration(500)
+			ViewHelper.setPivotX(child1, mCardWidth / 2);
+			ViewHelper.setPivotY(child1, 0);
+			ViewPropertyAnimator.animate(child1).scaleX(scale).setDuration(500)
 					.setListener(mAnimListener);
-			child1.animate().scaleY(scale).setDuration(500)
+			ViewPropertyAnimator.animate(child1).scaleY(scale).setDuration(500)
 					.setListener(mAnimListener);
 		}
 	}
